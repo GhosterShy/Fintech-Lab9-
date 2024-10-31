@@ -1,0 +1,63 @@
+import pandas as pd
+
+
+data = pd.read_csv('iPhone Repairment Transaction Dataset.csv')
+
+
+data
+
+
+##1. Деректерді алдын ала өңдеу және анализ жасау
+data = data.dropna()
+
+data
+
+
+
+
+
+data.groupby(['IPHONE_TYPE','PROBLEM']).size()
+
+
+data.groupby(['PROBLEM']).size()
+
+
+
+data.groupby(['IPHONE_TYPE']).size()
+
+
+
+
+##Түрлі ақаулар бойынша тәуекел деңгейін бағалау
+risk_assessment = data.groupby(['IPHONE_TYPE', 'PROBLEM_GROUPED']).size().unstack(fill_value=0)
+
+
+risk_assessment['RISK_LEVEL'] = pd.cut(
+    risk_assessment.sum(axis=1),
+    bins=[0, 5, 15, float("inf")],
+    labels=["Low", "Medium", "High"]
+)
+
+
+risk_assessment[['RISK_LEVEL']]
+
+
+
+
+##График құру
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+monthly_trend = data.groupby(['MONTH', 'PROBLEM']).size().unstack(fill_value=0)
+
+
+plt.figure(figsize=(14, 8))
+sns.lineplot(data=monthly_trend, markers=True, dashes=False)
+plt.title("Monthly Trend of iPhone Repair Issues by Problem Type")
+plt.xlabel("Month")
+plt.ylabel("Number of Issues")
+plt.legend(title="Problem Type", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True)
+plt.show()
+
